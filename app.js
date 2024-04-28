@@ -76,6 +76,62 @@ app.post("/taskList", validateTask_POST_PUT_Method, (req, res) => {
   }
 });
 
+// PUT route to update an existing task
+app.put("/taskList/:id", validateTask_POST_PUT_Method, (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const updatedTask = req.body;
+    const taskIndex = data.findIndex((task) => task.id === taskId);
+
+    if (taskIndex !== -1) {
+      data[taskIndex] = { ...data[taskIndex], ...updatedTask };
+      fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
+      res.status(200).json(data[taskIndex]);
+    } else {
+      res.status(404).json({ error: "Task not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// DELETE route to delete an existing task
+app.delete("/taskList/:id", (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const taskIndex = data.findIndex((task) => task.id === taskId);
+
+    if (taskIndex !== -1) {
+      data.splice(taskIndex, 1);
+      fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
+      res.status(200).json({ message: "Task deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Task not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// PATCH route to partially update an existing task
+app.patch("/taskList/:id", validateTask_PATCH_Method, (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const updates = req.body;
+  const taskIndex = data.findIndex((task) => task.id === taskId);
+
+  try {
+    if (taskIndex !== -1) {
+      data[taskIndex] = { ...data[taskIndex], ...updates };
+      fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
+      res.status(200).json(data[taskIndex]);
+    } else {
+      res.status(404).json({ error: "Task not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
