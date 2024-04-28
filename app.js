@@ -132,6 +132,43 @@ app.patch("/taskList/:id", validateTask_PATCH_Method, (req, res) => {
   }
 });
 
+// GET route to retrieve tasks sorted by ID
+app.get("/taskList/sortById", (req, res) => {
+  try {
+    const sortedTasks = data.slice().sort((a, b) => a.id - b.id);
+    res.status(200).json(sortedTasks);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET route to retrieve tasks sorted by status
+app.get("/taskList/sortByStatus", (req, res) => {
+  try {
+    const sortedTasks = data.sort(
+      (a, b) => statusRank[a.status] - statusRank[b.status]
+    );
+    res.status(200).json(sortedTasks);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET route to search for tasks by title or description
+app.get("/taskList/search", (req, res) => {
+  try {
+    const { q } = req.query;
+    const searchResults = data.filter(
+      (task) =>
+        task.title.toLowerCase().includes(q.toLowerCase()) ||
+        task.description.toLowerCase().includes(q.toLowerCase())
+    );
+    res.status(200).json(searchResults);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
